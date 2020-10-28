@@ -13,9 +13,10 @@ class todoController {
     }
 
     static findToDoByID(req, res) {
-        Todo.findbyPK(+req.params.id)
+        Todo.findByPk(+req.params.id)
             .then((data) => {
                 if (data) {
+                    console.log(data)
                     res.status(200).json(data)
                 } else {
                     res.status(404).json({ message: "Data not found" })

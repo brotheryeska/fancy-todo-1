@@ -1,7 +1,9 @@
 const router = require('express').Router()
 const todoController = require('../controllers/todoHandler')
 const userController = require('../controllers/userHandler')
-const user = require('../models/user')
+// const user = require('../models/user')
+const authentication = require('../middlewares/authentication')
+const authorization = require('../middlewares/authorization')
 
 
 router.get('/', (req, res) => {
@@ -11,16 +13,16 @@ router.get('/', (req, res) => {
 // user routes
 router.post('/register', userController.register);
 router.post('/login', userController.login);
-
+router.use(authentication)
 // to do routes
 router.post('/todos', todoController.addToDo)
 
 router.get('/todos', todoController.findAllToDo)
-router.get('/todos/:id', todoController.findToDoByID)
+router.get('/todos/:id', authorization, todoController.findToDoByID)
 
-router.put('/todos/:id', todoController.editToDoPut)
-router.patch('/todos/:id', todoController.editToDoPatch)
+router.put('/todos/:id', authorization, todoController.editToDoPut)
+router.patch('/todos/:id', authorization, todoController.editToDoPatch)
 
-router.delete('/todos/:id', todoController.deleteToDo) 
+router.delete('/todos/:id', authorization, todoController.deleteToDo) 
 
 module.exports = router;
