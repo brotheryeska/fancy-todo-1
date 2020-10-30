@@ -2,32 +2,32 @@ const { Todo } = require('../models')
 const valid_date = require('../helpers/checkdate')
 class todoController {
 
-    static findAllToDo(req, res) {
+    static findAllToDo(req, res, next) {
         Todo.findAll()
             .then((data) => {
                 res.status(200).json(data)
             })
             .catch((err) => {
-                res.status(500).json({ message: err })
+                next(err)
             })
     }
 
-    static findToDoByID(req, res) {
+    static findToDoByID(req, res, next) {
         Todo.findByPk(+req.params.id)
             .then((data) => {
                 if (data) {
                     console.log(data)
                     res.status(200).json(data)
                 } else {
-                    res.status(404).json({ message: "Data not found" })
+                    next({ message: "Data not found" })
                 }
             })
             .catch((err) => {
-                res.status(500).json({ message: err })
+                next(err)
             })
     }
 
-    static async addToDo(req, res) {
+    static async addToDo(req, res, next) {
         try {
             const listToDo = {
                 title: req.body.title,
@@ -40,17 +40,15 @@ class todoController {
             const validationDate = valid_date(time, validationTime)
             if (validationDate) {
                 let createData = await Todo.create(listToDo)
-                res.status(201).json(createData)
+                res.status(201).json(createData)    
             }
-        } catch (error) {
-            let message = error.message || "Internal Server error"
-            let status = error.status || 500
-            res.status(status).json(message)
+        } catch (err) {
+            next(err)
         }
 
     }
 
-    static async editToDoPut(req, res) {
+    static async editToDoPut(req, res, next) {
         try {
             const id = +req.params.id
             let doingList = {
@@ -62,21 +60,18 @@ class todoController {
             const time = new Date().toISOString().substring(0, 10)
             const validationDate = valid_date(time, doingList.due_date)
             if (validationDate) {
-                let updatedData = await Todo.update(doingList, { where: { id }, returning: true })
+                let updatedData = await Todo.update(doingList, { 
+                    where: { id }, returning: true })
                 res.status(200).json(updatedData)
             } else {
                 throw {message: "Data not found", status: 404}
             }
-           
-
-        } catch (error) {
-            let message = error.message || "Internal Server error"
-            let status = error.status || 500
-            res.status(status).json(message)
+        } catch(err) {
+            next(err)
         }
     }
 
-    static async editToDoPatch(req, res) {
+    static async editToDoPatch(req, res, next) {
         try {
             const id = +req.params.id
             let doingList = {
@@ -86,14 +81,12 @@ class todoController {
             let saveUpdate = await Todo.update(doingList, { where: { id }, returning: true })
             res.status(200).json(saveUpdate)
 
-        } catch (error) {
-            let message = error.message || "Internal Server error"
-            let status = error.status || 500
-            res.status(status).json(message)
+        } catch (err) {
+            next(err)
         }
     }
 
-    static deleteToDo(req, res) {
+    static deleteToDo(req, res, next) {
         Todo.destroy({
             where: { id: req.params.id }
         })
@@ -101,11 +94,11 @@ class todoController {
                 if (data) {
                     res.status(200).json({ message: "Success delete to do!" })
                 } else {
-                    res.status(404).json({ message: "Not found" })
+                    next({ message: "Not found" })
                 }
             })
             .catch((err) => {
-                res.status(500).json({ message: err })
+                next(err)
             })
     }
 }

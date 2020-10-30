@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt')
 const generateToken = require('../helpers/jwt')
 
 class userHandler {
-    static register(req, res){
+    static register(req, res, next){
         const userBody = {
             email: req.body.email,
             password: req.body.password
@@ -14,15 +14,11 @@ class userHandler {
                 res.status(201).json({id, email})
             })
             .catch((err) => {
-                if(err.name === "SequelizeValidationError" || "SequelizeUniqueConstraintError"){
-                    res.status(400).json(err.errors)
-                } else {
-                    res.status(500).json({message: err})
-                }
+                next(err)
             })  
     }
 
-    static login(req, res){
+    static login(req, res, next){
         var user = {
             email: req.body.email,
             password: req.body.password
@@ -30,18 +26,14 @@ class userHandler {
         User.findOne({where: {email: user.email}})
         .then(data => {
             if(data && bcrypt.compareSync(user.password, data.password)){
-                const access_token = generateToken({id: data.id, email: data.email})
-                res.status(200).json({access_token})
+                const access_token = generateToken({id: data.id, email: data.email, first_name: data.first_name})
+                res.status(200).json({access_token, first_name: data.first_name})
             } else {
-                res.status(500).json({message : err.message})
+                res.status(404).json({message : err.message})
             }
         })
         .catch((err) => {
-            if(err.name === "SequelizeValidationError" || "SequelizeUniqueConstraintError"){
-                res.status(400).json(err)
-            } else {
-                res.status(500).json({message: err})
-            }
+            next(err)
         })
     }
 

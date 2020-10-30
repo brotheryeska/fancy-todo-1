@@ -1,41 +1,37 @@
-module.exports = function(err, req, res, next){
-    let statusCode = 500
-    let message = "Internal Server Error!"
-    switch(err.name){
-      case "SequelizeValidationError":
-        statusCode = 400
-        message = err.errors[0].message
-        break;
-      case "SequelizeDatabaseError": //constraint allowNull :false
-        if(err.parent.code === '23502'){
-          statusCode = 400
-          message = err.errors[0].message
-        }
-        break;
-      case "SequelizeUniqueConstraintError":
-        statusCode = 400
-        message = `${err.errors[0].value} already exists`
-        break;
-      case 'SequelizeForeignKeyConstraintError': 
-        statusCode = 400
-        message = `ForeignKey error!` 
-        break;
-      case 'NotFoundError':
-      case 'ForbiddenError':
-      case 'UnauthorizedError':
-      case 'BadRequestError': 
-        statusCode = err.statusCode
-        message = err.message
-        break;
-      case 'JsonWebTokenError': 
-      case 'TokenExpiredError': 
-        statusCode = 401
-        message = 'Failed to authenticate'
-        break;
-    }
-  
-    statusCode === 500 && console.log(err.stack)
-    
-    res.status(statusCode).json({message})
-    
+function errorHandler(err, req, res, next) {
+  let status = 500
+  let message = 'internal server error'
+
+  if (err.name === "SequelizeValidationError") {
+    status = 400;
+    message = [];
+    err.errors.forEach(element => {
+      message.push(element.message)
+    });
+    message = message.join(', ');
+  } else if (err.name === "SequelizeUniqueConstraintError") {
+    status = 400;
+    message = [];
+    err.errors.forEach(element => {
+      message.push(element.message)
+    });
+    message = message.join(', ');
+  } else if (err.name === "NotFound") {
+    status = 404;
+    message = 'Error, not found'
+  } else if (err.name === 'UserUnauthorized') {
+    status = 401;
+    message = 'User unauthorized'
+  } else if (err.name === 'WrongEmailPassword') {
+    status = 401;
+    message = 'Wrong email/password'
+  } else if (err.name === 'JsonWebTokenError') {
+    status = 401;
+    message = 'User unauthorized'
   }
+  res.status(status).json({
+    message
+  })
+}
+
+module.exports = errorHandler

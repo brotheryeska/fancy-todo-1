@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const todoController = require('../controllers/todoHandler')
 const userController = require('../controllers/userHandler')
+const salutController = require('../controllers/salutHandler')
 // const user = require('../models/user')
 const authentication = require('../middlewares/authentication')
 const authorization = require('../middlewares/authorization')
@@ -11,6 +12,7 @@ router.get('/', (req, res) => {
 })
 
 // user routes
+router.get('/salut', salutController.getRandomSalut)
 router.post('/register', userController.register);
 router.post('/login', userController.login);
 router.use(authentication)
