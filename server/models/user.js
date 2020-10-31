@@ -13,8 +13,11 @@ module.exports = (sequelize, DataTypes) => {
   };
   User.init({
     email: DataTypes.STRING,
-    password: DataTypes.STRING
-  }, {
+    password: DataTypes.STRING,
+    first_name: DataTypes.STRING,
+    last_name: DataTypes.STRING,
+  }, 
+  {
     hooks: {
       beforeCreate(user){
         user.password = bcrypt.hashSync(user.password, 8) // untuk enkripsi password

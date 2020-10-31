@@ -6,7 +6,6 @@ const salutController = require('../controllers/salutHandler')
 const authentication = require('../middlewares/authentication')
 const authorization = require('../middlewares/authorization')
 
-
 router.get('/', (req, res) => {
     res.send("Hello world")
 })
@@ -15,6 +14,7 @@ router.get('/', (req, res) => {
 router.get('/salut', salutController.getRandomSalut)
 router.post('/register', userController.register);
 router.post('/login', userController.login);
+router.post('/googleLogin', userController.googleLogin)
 router.use(authentication)
 // to do routes
 router.post('/todos', todoController.addToDo)
