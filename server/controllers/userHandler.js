@@ -1,6 +1,5 @@
 const { User } = require('../models')
 const bcrypt = require('bcrypt')
-// const jwt = require('jsonwebtoken')
 const generateToken = require('../helpers/jwt')
 const {OAuth2Client} = require('google-auth-library')
 
@@ -23,7 +22,7 @@ class userHandler {
 
     static login(req, res, next) {
         var user = {
-            email: req.body.email,
+            email: req.body.email,      
             password: req.body.password
         }
         User.findOne({ where: { email: user.email } })

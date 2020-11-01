@@ -1,12 +1,14 @@
 const SERVER = "http://localhost:3000"
 
 $(document).ready(function() {
-    const token = localStorage.getItem("access_token")
+    const token = localStorage.getItem("token")
     if (!token) {
         $("#login").show()
         $("#home").hide()
         $("#register").hide()
+        helloSalut()
     } else {
+        helloSalut()
         $("#home").show()
         $("#login").hide()
         $("#register").hide()
@@ -18,6 +20,7 @@ function login(e) {
     e.preventDefault()
     const email = $("#login-email").val()
     const password = $("#login-password").val()
+    console.log(email, password)
     $.ajax({
         method: "POST",
         url: SERVER + "/login",
@@ -29,20 +32,20 @@ function login(e) {
         .done(res => {
             const token = res.access_token
             localStorage.setItem("token", token)
-            localStorage.setItem("first_name", first_name)
+            localStorage.setItem("first_name", res.first_name)
             $('#login').hide()
             $('#home').show()
+            helloSalut()
         })
         .fail(err => {
             console.log(err)
         }) 
 }
 
-
-
 function getRegister() {
-    // $("#register").show()
+    $("#register").show()
     $("#login").hide()
+    $("#home").hide()
 }
 
 function register(e) {
@@ -51,6 +54,7 @@ function register(e) {
     const password = $("#register-password").val()
     const first_name= $("#register-first_name").val()
     const last_name = $("#register-last_name").val()
+    console.log(email, password, first_name, last_name)
     $.ajax({
         method: "POST",
         url: SERVER + "/register",
@@ -75,20 +79,32 @@ function onSignIn(googleUser) {
     var google_access_token = googleUser.getAuthResponse().id_token;
     $.ajax({
         method: 'POST',
-        url: 'http://localhost:3000/googleSign',
+        url: 'http://localhost:3000/googleLogin',
         data: { 
             google_access_token 
         }
     })
     .done(res => {
-        localStorage.getItem("token", res.access_token)
+        localStorage.getItem("token", res.google_access_token)
         localStorage.getItem("first_name", res.first_name)
         helloSalut()
-        ready()
+        $("#login").hide()
+        $("#home").show()
     })
     .fail(err => {
         console.log(err)
     })
+}
+
+function logout(e){
+    $("#login").show()
+    $("#home").hide()
+    localStorage.removeItem("token")
+    localStorage.removeItem("first_name")
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+        console.log('User signed out.');
+    });
 }
 
 function signOut() {
@@ -98,6 +114,21 @@ function signOut() {
     });
     localStorage.removeItem('access_token');
 }
+
+function fetchToDo(){
+    const token = localStorage.getItem("token")
+    $.ajax({
+        method: 'GET',
+        url: SERVER + '/todos',
+        headers: {
+            
+        }
+    })
+    .done(data => {
+
+    })
+}
+
 
 function helloSalut() {
     $.ajax({
