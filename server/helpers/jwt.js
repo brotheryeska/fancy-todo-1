@@ -1,8 +1,11 @@
-const jwt = require('jsonwebtoken')
+let jwt = require('jsonwebtoken')
 
-function generateToken(obj) {
-    const token = jwt.sign(obj, process.env.JWT_SECRET)
-    return token
+function generateToken(payload) {
+    return jwt.sign(payload, 'secret')
 }
 
-module.exports = generateToken
+function verifyToken(token) {
+    return jwt.verify(token, 'secret')
+}
+
+module.exports = { generateToken, verifyToken }

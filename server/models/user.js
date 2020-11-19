@@ -2,25 +2,60 @@
 const {
   Model
 } = require('sequelize');
-const bcrypt = require('bcrypt')
+const {hashPassword} = require('../helpers/bcrypt')
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // define association here
       User.hasMany(models.Todo)
     }
   };
   User.init({
-    email: DataTypes.STRING,
-    password: DataTypes.STRING,
-    first_name: DataTypes.STRING,
-    last_name: DataTypes.STRING,
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          args: true,
+          msg:  "Email is required!"
+        }
+      }
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty:{
+          args:true,
+          msg: "Password is required!"
+        }
+      } 
+    },
+    first_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          args: true,
+          msg: "First name is required field"
+        }
+      }
+    },
+    last_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate:{
+        notEmpty: {
+          args: true,
+          msg: "Last name is required field"
+        }
+      }
+    }
   }, 
   {
     hooks: {
       beforeCreate(user){
-        user.password = bcrypt.hashSync(user.password, 8) // untuk enkripsi password
+        user.password = hashPassword(user.password, 8) // untuk enkripsi password
       }
     },
     sequelize,

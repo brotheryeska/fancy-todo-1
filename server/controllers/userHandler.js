@@ -1,6 +1,6 @@
 const { User } = require('../models')
-const bcrypt = require('bcrypt')
-const generateToken = require('../helpers/jwt')
+const {comparePassword} = require('../helpers/bcrypt')
+const {generateToken} = require('../helpers/jwt')
 const {OAuth2Client} = require('google-auth-library')
 
 class userHandler {
@@ -27,7 +27,7 @@ class userHandler {
         }
         User.findOne({ where: { email: user.email } })
             .then(data => {
-                if (data && bcrypt.compareSync(user.password, data.password)) {
+                if (data && comparePassword(user.password, data.password)) {
                     const access_token = generateToken({ id: data.id, email: data.email, first_name: data.first_name })
                     res.status(200).json({ access_token, first_name: data.first_name })
                 } else {

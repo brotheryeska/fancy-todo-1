@@ -28,12 +28,14 @@ class todoController {
     }
 
     static async addToDo(req, res, next) {
+        let userId = req.userData.id
         try {
             const listToDo = {
                 title: req.body.title,
                 description: req.body.description,
                 status: req.body.status,
-                due_date: req.body.due_date
+                due_date: req.body.due_date,
+                UserId: userId
             }
             const time = new Date().toISOString().substring(0, 10)
             const validationTime = listToDo.due_date.split('T')[0]
@@ -75,9 +77,8 @@ class todoController {
         try {
             const id = +req.params.id
             let doingList = {
-                status: req.body.status,
+                status: "Done",
             }
-
             let saveUpdate = await Todo.update(doingList, { where: { id }, returning: true })
             res.status(200).json(saveUpdate)
 
